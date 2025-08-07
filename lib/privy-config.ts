@@ -14,7 +14,7 @@ export const privyConfig: PrivyClientConfig = {
   supportedChains: [sepolia],
   // Embedded wallet configuration - Required for session signers
   embeddedWallets: {
-    createOnLogin: 'all', // Auto-create embedded wallets for ALL users (required for session signers)
+    createOnLogin: 'all-users', // Auto-create embedded wallets for ALL users (required for session signers)
     requireUserPasswordOnCreate: false, // Streamlined UX
   },
 };

@@ -92,64 +92,10 @@ function calculateRoundUp(amount: string): number {
   return Math.round(roundUpAmount * 1000000) / 1000000;
 }
 
-// Process round-up for confirmed spending transactions
+// Legacy function - no longer used since we moved to user-controlled staking
+// Keeping for reference but not called anywhere
 async function processRoundUp(transactionId: string, amount: string, transactionType: string, userAddress: string): Promise<void> {
-  // Only process round-ups for spending transactions
-  if (transactionType !== 'spend') {
-    return;
-  }
-
-  const roundUpAmount = calculateRoundUp(amount);
-  
-  if (roundUpAmount > 0) {
-    const { error: updateError } = await supabase
-      .from('usdc_transactions')
-      .update({ 
-        round_up_amount: roundUpAmount,
-        round_up_processed: false 
-      })
-      .eq('id', transactionId);
-
-    if (updateError) {
-      console.error('❌ Error updating round-up amount:', updateError);
-    } else {
-      console.log(`💰 Round-up calculated: $${roundUpAmount.toFixed(6)} for transaction ${transactionId}`);
-      
-      // Trigger automated staking immediately for POC
-      try {
-        console.log('🚀 Triggering automated staking...');
-        // Use ngrok URL for internal API calls during development
-        const baseUrl = process.env.NODE_ENV === 'production' 
-          ? process.env.WEBHOOK_URL?.replace('/api/webhook/moralis', '') || 'https://your-domain.vercel.app'
-          : 'https://9095b16e7abf.ngrok-free.app';
-        
-        const stakingResponse = await fetch(`${baseUrl}/api/staking/automated`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            transactionId,
-            userAddress,
-            roundUpAmount
-          })
-        });
-
-        if (stakingResponse.ok) {
-          const stakingResult = await stakingResponse.json();
-          console.log('✅ Automated staking triggered successfully:', stakingResult);
-        } else {
-          const stakingError = await stakingResponse.text();
-          console.error('❌ Automated staking failed:', stakingError);
-        }
-      } catch (stakingError) {
-        console.error('❌ Error triggering automated staking:', stakingError);
-        // Don't fail the webhook processing if staking fails
-      }
-    }
-  } else {
-    console.log(`ℹ️  No round-up needed for amount: $${amount}`);
-  }
+  console.log('ℹ️ processRoundUp is deprecated - using user-controlled staking instead')
 }
 
 // Decode Transfer event log
