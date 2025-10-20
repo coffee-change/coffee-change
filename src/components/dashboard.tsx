@@ -6,7 +6,7 @@ import { WalletConnectButton } from "@/components/wallet-connect-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { RefreshCw, Wallet, Clock, DollarSign, TrendingUp, Coffee } from "lucide-react";
+import { RefreshCw, Wallet, Clock, DollarSign, TrendingUp, Coffee, Settings, History } from "lucide-react";
 
 interface TransactionData {
   hash: string;
@@ -25,9 +25,18 @@ interface RoundUpData {
 interface DashboardProps {
   onReviewRoundUp?: () => void;
   onViewPosition?: () => void;
+  onViewRoundUpCharges?: () => void;
+  onViewInvestmentHistory?: () => void;
+  onSettings?: () => void;
 }
 
-export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
+export function Dashboard({ 
+  onReviewRoundUp, 
+  onViewPosition,
+  onViewRoundUpCharges,
+  onViewInvestmentHistory,
+  onSettings
+}: DashboardProps) {
   const { selectedAccount, isConnected, solBalance, usdcBalance, isLoadingBalances, fetchBalances, networkName } = useSolana();
   const [lastTransaction, setLastTransaction] = useState<TransactionData | null>(null);
   const [roundUpData, setRoundUpData] = useState<RoundUpData | null>(null);
@@ -84,6 +93,24 @@ export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
     }
   };
 
+  const handleViewRoundUpCharges = () => {
+    if (onViewRoundUpCharges) {
+      onViewRoundUpCharges();
+    }
+  };
+
+  const handleViewInvestmentHistory = () => {
+    if (onViewInvestmentHistory) {
+      onViewInvestmentHistory();
+    }
+  };
+
+  const handleSettings = () => {
+    if (onSettings) {
+      onSettings();
+    }
+  };
+
   if (!isConnected || !selectedAccount) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
@@ -119,16 +146,25 @@ export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
             <Coffee className="w-8 h-8 text-primary" />
             <h1 className="text-2xl font-bold coffee-text-primary">Coffee Change</h1>
           </div>
-          <Button
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            variant="outline"
-            size="sm"
-            className="coffee-button"
-          >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
-            {isRefreshing ? 'Syncing...' : 'Refresh'}
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleSettings}
+              variant="outline"
+              size="sm"
+              className="p-2 md:hidden"
+            >
+              <Settings className="w-4 h-4" />
+            </Button>
+            <Button
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              variant="outline"
+              size="sm"
+              className="coffee-button"
+            >
+              <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            </Button>
+          </div>
         </div>
 
         {/* Wallet Info Card */}
@@ -256,6 +292,28 @@ export function Dashboard({ onReviewRoundUp, onViewPosition }: DashboardProps) {
                     <TrendingUp className="w-4 h-4 mr-2" />
                     Review & Confirm Transfer
                   </Button>
+                  
+                  <div className="grid grid-cols-2 gap-3">
+                    <Button 
+                      onClick={handleViewRoundUpCharges}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      Charges
+                    </Button>
+                    
+                    <Button 
+                      onClick={handleViewInvestmentHistory}
+                      variant="outline"
+                      className="w-full"
+                      size="lg"
+                    >
+                      <History className="w-4 h-4 mr-2" />
+                      History
+                    </Button>
+                  </div>
                   
                   {onViewPosition && (
                     <Button 

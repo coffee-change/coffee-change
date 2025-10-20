@@ -106,5 +106,9 @@
 import { AppNavigation } from "@/components/app-navigation";
 
 export default function Home() {
-  return <AppNavigation />;
+  return (
+    <div className="min-h-screen bg-background">
+      <AppNavigation />
+    </div>
+  );
 }
