@@ -283,7 +283,7 @@ export function RoundUpReview({ onBack, onSuccess }: RoundUpReviewProps) {
             <div className="flex justify-between">
               <span className="text-muted-foreground">Network:</span>
               <Badge variant="secondary" className="coffee-bg-mocha text-white">
-                Solana Devnet
+                Solana Mainnet
               </Badge>
             </div>
             <div className="flex justify-between">

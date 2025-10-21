@@ -208,7 +208,7 @@ export function InvestmentPosition({ onBack }: InvestmentPositionProps) {
               <div className="flex justify-between">
                 <span className="text-sm font-medium coffee-text-secondary">Network</span>
                 <Badge variant="secondary" className="coffee-bg-mocha text-white">
-                  Solana Devnet
+                  Solana Mainnet
                 </Badge>
               </div>
               <div className="flex justify-between">

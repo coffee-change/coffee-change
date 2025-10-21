@@ -36,7 +36,7 @@ export interface AppConfig {
 // Legacy network configuration (keeping for backward compatibility)
 export const NETWORK_CONFIG = {
   // Change this to switch networks
-  CURRENT_NETWORK: (process.env.NEXT_PUBLIC_SOLANA_CLUSTER || 'devnet') as 'mainnet' | 'devnet',
+  CURRENT_NETWORK: (process.env.NEXT_PUBLIC_SOLANA_CLUSTER || 'mainnet') as 'mainnet' | 'devnet',
 
   mainnet: {
     RPC_ENDPOINT: process.env.NEXT_PUBLIC_SOLANA_MAINNET_RPC_URL || "https://api.mainnet-beta.solana.com",

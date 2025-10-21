@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, DollarSign, Coffee, TrendingUp, Clock } from "lucide-react";
+import { createDepositTransaction } from "@/utils/jupiter-lend";
+import { Connection, PublicKey } from "@solana/web3.js";
 
 interface PendingRoundUp {
   id: string;
@@ -22,53 +24,91 @@ interface RoundUpChargesProps {
 }
 
 export function RoundUpCharges({ onBack, onConfirmInvest }: RoundUpChargesProps) {
-  const { selectedAccount, isConnected } = useSolana();
-  const [selectedPayment, setSelectedPayment] = useState<'sol' | 'usdc'>('sol');
+  const { selectedAccount, selectedWallet, isConnected } = useSolana();
   const [isProcessing, setIsProcessing] = useState(false);
 
-  // Mock data - replace with actual round-up data
+  // Mock data - Updated to show exactly $1.00 total in USDC
   const pendingRoundUps: PendingRoundUp[] = [
     {
       id: "1",
-      originalAmount: 13.42,
+      originalAmount: 13.35,
       roundedAmount: 14.00,
-      spareChange: 0.58,
+      spareChange: 0.65,
       timestamp: "2024-12-15T14:30:00Z",
       transactionHash: "3Kj8...9Xm2"
     },
     {
       id: "2",
-      originalAmount: 8.75,
+      originalAmount: 8.85,
       roundedAmount: 9.00,
-      spareChange: 0.25,
+      spareChange: 0.15,
       timestamp: "2024-12-14T11:15:00Z",
       transactionHash: "7Pm3...k9R1"
     },
     {
       id: "3",
-      originalAmount: 22.30,
+      originalAmount: 22.80,
       roundedAmount: 23.00,
-      spareChange: 0.70,
+      spareChange: 0.20,
       timestamp: "2024-12-13T09:45:00Z",
       transactionHash: "9Qn5...f2H8"
     }
   ];
 
-  const totalPending = pendingRoundUps.reduce((sum, item) => sum + item.spareChange, 0);
+  // Total is now exactly $1.00 USDC
+  const totalPending = 1.00;
 
   const handleConfirmInvest = async () => {
-    if (!isConnected || !selectedAccount) return;
+    if (!isConnected || !selectedAccount || !selectedWallet) {
+      alert("Please connect your wallet to proceed");
+      return;
+    }
 
     setIsProcessing(true);
-    
+
     try {
-      // Simulate transaction processing
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // Get RPC endpoint from environment
+      const rpcUrl = process.env.NEXT_PUBLIC_SOLANA_MAINNET_RPC_URL || "https://api.mainnet-beta.solana.com";
+      const connection = new Connection(rpcUrl, 'confirmed');
+
+      console.log("Creating Jupiter Lend deposit transaction for $1.00 USDC...");
+
+      // Create Jupiter Lend deposit transaction for $1 USDC
+      const transaction = await createDepositTransaction(
+        connection,
+        new PublicKey(selectedAccount.address),
+        totalPending // $1.00 USDC
+      );
+
+      console.log("Transaction created, requesting wallet signature...");
+
+      // Use direct Phantom wallet API for signing and sending
+      // @ts-expect-error - Phantom wallet global object
+      const phantomWallet = window.phantom?.solana;
+
+      if (!phantomWallet) {
+        throw new Error("Phantom wallet not found. Please install Phantom wallet extension.");
+      }
+
+      console.log("Using Phantom wallet to sign transaction...");
+
+      // Sign and send the transaction using Phantom's API
+      const { signature } = await phantomWallet.signAndSendTransaction(transaction);
+
+      console.log("Transaction sent, signature:", signature);
+
+      console.log("✅ Investment Successful!");
+      console.log(`Transaction signature: ${signature}`);
+      console.log(`View on Solscan: https://solscan.io/tx/${signature}`);
+
+      alert(`Investment Successful!\n\nDeposited $${totalPending.toFixed(2)} USDC into Jupiter Earn\n\nTransaction: ${signature}\n\nView on Solscan: https://solscan.io/tx/${signature}`);
+
       // Navigate to success
       onConfirmInvest();
     } catch (error) {
-      console.error('Transaction failed:', error);
+      console.error('❌ Transaction failed:', error);
+      const errorMessage = error instanceof Error ? error.message : "Failed to process investment";
+      alert(`Transaction Failed\n\n${errorMessage}`);
     } finally {
       setIsProcessing(false);
     }
@@ -132,45 +172,22 @@ export function RoundUpCharges({ onBack, onConfirmInvest }: RoundUpChargesProps)
                 ${totalPending.toFixed(2)}
               </div>
               <div className="text-sm text-muted-foreground">
-                Total Pending Round-Up
+                Total Pending Round-Up (USDC)
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-lg font-semibold coffee-text-primary">
-                  {(totalPending / 180.50).toFixed(4)} SOL
-                </div>
-                <div className="text-xs text-muted-foreground">SOL Equivalent</div>
+            <div className="text-center p-6 bg-muted/50 rounded-lg border-2 border-primary/20">
+              <div className="text-2xl font-semibold coffee-text-primary mb-1">
+                ${totalPending.toFixed(2)} USDC
               </div>
-              <div className="text-center p-4 bg-muted/50 rounded-lg">
-                <div className="text-lg font-semibold coffee-text-primary">
-                  ${totalPending.toFixed(2)} USDC
-                </div>
-                <div className="text-xs text-muted-foreground">USDC Equivalent</div>
+              <div className="text-xs text-muted-foreground">
+                Ready to invest in Jupiter Earn
               </div>
             </div>
 
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium coffee-text-secondary">Payment Method</span>
-              <div className="flex gap-2">
-                <Button
-                  variant={selectedPayment === 'sol' ? 'default' : 'outline'}
-                  size="sm"
-                  className={selectedPayment === 'sol' ? 'coffee-button' : ''}
-                  onClick={() => setSelectedPayment('sol')}
-                >
-                  SOL
-                </Button>
-                <Button
-                  variant={selectedPayment === 'usdc' ? 'default' : 'outline'}
-                  size="sm"
-                  className={selectedPayment === 'usdc' ? 'coffee-button' : ''}
-                  onClick={() => setSelectedPayment('usdc')}
-                >
-                  USDC
-                </Button>
-              </div>
+            <div className="flex items-center justify-center gap-2 p-3 bg-primary/10 rounded-lg">
+              <DollarSign className="w-4 h-4 text-primary" />
+              <span className="text-sm font-medium coffee-text-secondary">Payment Method: USDC only</span>
             </div>
           </CardContent>
         </Card>
