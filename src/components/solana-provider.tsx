@@ -144,13 +144,48 @@ export function SolanaProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const setWalletAndAccount = (
+  const setWalletAndAccount = async (
     wallet: UiWallet | null,
     account: UiWalletAccount | null
   ) => {
     setSelectedWallet(wallet);
     setSelectedAccount(account);
     if (account) {
+      // Initialize wallet tracking (baseline setup)
+      try {
+        const response = await fetch('/api/wallet/init', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ address: account.address }),
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          console.log('✓ Wallet initialized:', result.data);
+          if (result.data.isNewWallet) {
+            console.log('✓ New wallet detected, baseline set to:', result.data.last_tracked_tx);
+          } else {
+            console.log('✓ Existing wallet, last tracked:', result.data.last_tracked_tx);
+          }
+        } else {
+          console.error('✗ Failed to initialize wallet tracking:', result.error);
+          if (result.details) {
+            console.error('  Details:', result.details);
+          }
+          if (result.network) {
+            console.error(`  Current network: ${result.network}`);
+          }
+          // Show user-friendly alert
+          alert(`Wallet Tracking Error:\n\n${result.error}\n\nCheck the console for more details.`);
+        }
+      } catch (error) {
+        console.error('Error initializing wallet tracking:', error);
+        // Don't block wallet connection if tracking initialization fails
+      }
+
       fetchBalances();
     } else {
       setSolBalance(null);

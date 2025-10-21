@@ -16,6 +16,7 @@
     "@solana-program/memo": "^0.8.0",
     "@solana/kit": "^4.0.0",
     "@solana/react": "^4.0.0",
+    "@supabase/supabase-js": "^2.76.1",
     "@wallet-standard/core": "^1.1.1",
     "@wallet-standard/react": "^1.0.1",
     "bn.js": "^5.2.2",

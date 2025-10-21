@@ -13,6 +13,7 @@ import {
   Coffee
 } from "lucide-react";
 import { WalletConnectButton } from "@/components/wallet-connect-button";
+import { NetworkBadge } from "@/components/network-indicator";
 
 interface NavigationMenuProps {
   currentScreen: string;
@@ -37,14 +38,18 @@ export function NavigationMenu({ currentScreen, onNavigate }: NavigationMenuProp
         <div className="flex items-center gap-2">
           <Coffee className="w-6 h-6 text-primary" />
           <span className="font-bold text-lg coffee-text-primary">Coffee Change</span>
+          <NetworkBadge />
         </div>
         <WalletConnectButton />
       </div>
 
       {/* Desktop Header */}
-      <div className="hidden md:flex md:items-center md:gap-3 md:p-6 md:border-b md:border-border">
-        <Coffee className="w-8 h-8 text-primary" />
-        <h1 className="text-xl font-bold coffee-text-primary">Coffee Change</h1>
+      <div className="hidden md:flex md:flex-col md:gap-3 md:p-6 md:border-b md:border-border">
+        <div className="flex items-center gap-3">
+          <Coffee className="w-8 h-8 text-primary" />
+          <h1 className="text-xl font-bold coffee-text-primary">Coffee Change</h1>
+        </div>
+        <NetworkBadge />
       </div>
 
       {/* Navigation Items */}
