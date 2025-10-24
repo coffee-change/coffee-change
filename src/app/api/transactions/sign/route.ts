@@ -5,16 +5,14 @@
 
 import { NextRequest, NextResponse } from "next/server";
 import { PrivyClient } from "@privy-io/server-auth";
-import { Connection } from "@solana/web3.js";
 import {
-	createTransactionMessage,
-	setTransactionMessageFeePayerSigner,
-	setTransactionMessageLifetimeUsingBlockhash,
-	appendTransactionMessageInstruction,
-	compileTransaction,
-	address,
-	pipe,
-} from "@solana/kit";
+	Connection,
+	Transaction,
+	TransactionInstruction,
+	PublicKey,
+	SystemProgram,
+	LAMPORTS_PER_SOL,
+} from "@solana/web3.js";
 import {
 	getDepositInstructionData,
 	getWithdrawInstructionData,
@@ -132,44 +130,41 @@ export async function POST(request: NextRequest) {
 			);
 		}
 
-		// Build complete transaction using @solana/kit
+		// Build complete transaction using @solana/web3.js
+		const transaction = new Transaction();
 
-		// Create transaction message
-		const transactionMessage = pipe(
-			createTransactionMessage({ version: 0 }),
-			(tx) =>
-				setTransactionMessageFeePayerSigner(address(walletAddress))(
-					tx
-				),
-			(tx) =>
-				setTransactionMessageLifetimeUsingBlockhash(
-					await connection.getLatestBlockhash()
-				)(tx),
-			(tx) =>
-				appendTransactionMessageInstruction({
-					programAddress: address(instructionData.programId),
-					accounts: instructionData.keys.map((key) => ({
-						address: address(key.pubkey),
-						isSigner: key.isSigner,
-						isWritable: key.isWritable,
-					})),
-					data: new Uint8Array(instructionData.data),
-				})(tx)
-		);
+		// Add the instruction to the transaction
+		const instruction = new TransactionInstruction({
+			programId: new PublicKey(instructionData.programId),
+			keys: instructionData.keys.map((key) => ({
+				pubkey: new PublicKey(key.pubkey),
+				isSigner: key.isSigner,
+				isWritable: key.isWritable,
+			})),
+			data: Buffer.from(instructionData.data),
+		});
 
-		// Compile transaction
-		const compiledTransaction = compileTransaction(
-			transactionMessage
-		);
+		transaction.add(instruction);
+
+		// Set the fee payer
+		transaction.feePayer = new PublicKey(walletAddress);
+
+		// Get recent blockhash and set it
+		const { blockhash } = await connection.getLatestBlockhash();
+		transaction.recentBlockhash = blockhash;
+
+		// Serialize the transaction for signing
+		const serializedTransaction = transaction.serialize({
+			requireAllSignatures: false,
+			verifySignatures: false,
+		});
 
 		// Use Privy's Solana RPC to sign and send transaction
 		const { data } = await privyClient.walletApi.rpc({
 			walletId: solanaWallet.id,
 			method: "sendTransaction", // This signs AND sends the transaction
 			params: {
-				transaction: Buffer.from(compiledTransaction).toString(
-					"base64"
-				),
+				transaction: serializedTransaction.toString("base64"),
 				encoding: "base64",
 			},
 		});
