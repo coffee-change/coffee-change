@@ -21,12 +21,12 @@ interface InvestmentHistoryProps {
 }
 
 export function InvestmentHistory({ onBack }: InvestmentHistoryProps) {
-  const { selectedAccount, isConnected } = useSolana();
+  const { walletAddress, isConnected } = useSolana();
   const [history, setHistory] = useState<InvestmentRecord[]>([]);
 
   // Mock data - replace with actual investment history data
   useState(() => {
-    if (isConnected && selectedAccount) {
+    if (isConnected && walletAddress) {
       setHistory([
         {
           id: "1",
@@ -64,7 +64,7 @@ export function InvestmentHistory({ onBack }: InvestmentHistoryProps) {
     }
   });
 
-  if (!isConnected || !selectedAccount) {
+  if (!isConnected || !walletAddress) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md coffee-card">

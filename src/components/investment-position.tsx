@@ -22,13 +22,13 @@ interface PoolData {
 }
 
 export function InvestmentPosition({ onBack }: InvestmentPositionProps) {
-  const { selectedAccount, isConnected } = useSolana();
+  const { walletAddress, isConnected } = useSolana();
   const [poolData, setPoolData] = useState<PoolData | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Mock data - replace with actual smart contract data
   useState(() => {
-    if (isConnected && selectedAccount) {
+    if (isConnected && walletAddress) {
       // Simulate loading
       setTimeout(() => {
         setPoolData({
@@ -45,7 +45,7 @@ export function InvestmentPosition({ onBack }: InvestmentPositionProps) {
     }
   });
 
-  if (!isConnected || !selectedAccount) {
+  if (!isConnected || !walletAddress) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md coffee-card">

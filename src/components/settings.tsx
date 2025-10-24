@@ -13,7 +13,7 @@ interface SettingsProps {
 
 export function SettingsPage({ onBack }: SettingsProps) {
   const { 
-    selectedAccount, 
+    walletAddress, 
     isConnected, 
     solBalance, 
     usdcBalance, 
@@ -35,7 +35,7 @@ export function SettingsPage({ onBack }: SettingsProps) {
     }
   };
 
-  if (!isConnected || !selectedAccount) {
+  if (!isConnected || !walletAddress) {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <Card className="w-full max-w-md coffee-card">
@@ -91,7 +91,7 @@ export function SettingsPage({ onBack }: SettingsProps) {
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium coffee-text-secondary">Address</span>
               <code className="text-sm bg-muted px-2 py-1 rounded font-mono">
-                {selectedAccount.address.slice(0, 8)}...{selectedAccount.address.slice(-8)}
+                {walletAddress.slice(0, 8)}...{walletAddress.slice(-8)}
               </code>
             </div>
             <div className="flex items-center justify-between">
