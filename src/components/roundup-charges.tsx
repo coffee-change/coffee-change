@@ -38,7 +38,7 @@ export function RoundUpCharges({
 	onBack,
 	onConfirmInvest,
 }: RoundUpChargesProps) {
-	const { walletAddress, isConnected } = useSolana();
+	const { walletAddress, isConnected, getAccessToken } = useSolana();
 	const [isProcessing, setIsProcessing] = useState(false);
 
 	// Mock data - Updated to show exactly $1.00 total in USDC
@@ -85,11 +85,18 @@ export function RoundUpCharges({
 				"Creating Jupiter Lend deposit transaction for $1.00 USDC..."
 			);
 
+			// Get auth token from Privy
+			const authToken = await getAccessToken();
+			if (!authToken) {
+				throw new Error("Failed to get authentication token");
+			}
+
 			// Use server-side API for transaction signing
 			const response = await fetch("/api/transactions/sign", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
+					Authorization: `Bearer ${authToken}`,
 				},
 				body: JSON.stringify({
 					action: "deposit",

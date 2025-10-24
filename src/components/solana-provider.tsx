@@ -31,6 +31,7 @@ interface SolanaContextState {
 	walletAddress: string | null;
 	isConnected: boolean;
 	user: any; // Privy user object
+	getAccessToken: () => Promise<string | null>;
 
 	// Balance State
 	solBalance: number | null;
@@ -58,7 +59,7 @@ export function SolanaProvider({
 }: {
 	children: React.ReactNode;
 }) {
-	const { ready, authenticated, user } = usePrivy();
+	const { ready, authenticated, user, getAccessToken } = usePrivy();
 	const { wallets } = useWallets();
 
 	// State management
@@ -230,6 +231,7 @@ export function SolanaProvider({
 			walletAddress,
 			isConnected,
 			user,
+			getAccessToken,
 
 			// Balance values
 			solBalance,
@@ -243,6 +245,7 @@ export function SolanaProvider({
 			walletAddress,
 			isConnected,
 			user,
+			getAccessToken,
 			solBalance,
 			usdcBalance,
 			isLoadingBalances,
