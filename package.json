@@ -20,6 +20,7 @@
     "@solana-program/token": "^0.7.0",
     "@solana/kit": "^4.0.0",
     "@solana/react": "^4.0.0",
+    "@solana/web3.js": "^1.98.4",
     "@supabase/supabase-js": "^2.76.1",
     "bn.js": "^5.2.2",
     "class-variance-authority": "^0.7.1",

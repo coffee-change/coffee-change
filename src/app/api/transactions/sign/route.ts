@@ -7,6 +7,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { PrivyClient } from "@privy-io/server-auth";
 import { Connection } from "@solana/web3.js";
 import {
+	createTransactionMessage,
+	setTransactionMessageFeePayerSigner,
+	setTransactionMessageLifetimeUsingBlockhash,
+	appendTransactionMessageInstruction,
+	compileTransaction,
+	address,
+	pipe,
+} from "@solana/kit";
+import {
 	getDepositInstructionData,
 	getWithdrawInstructionData,
 } from "@/utils/jupiter-lend";
@@ -124,15 +133,6 @@ export async function POST(request: NextRequest) {
 		}
 
 		// Build complete transaction using @solana/kit
-		const {
-			createTransactionMessage,
-			setTransactionMessageFeePayerSigner,
-			setTransactionMessageLifetimeUsingBlockhash,
-			appendTransactionMessageInstruction,
-			compileTransaction,
-			address,
-			pipe,
-		} = await import("@solana/kit");
 
 		// Create transaction message
 		const transactionMessage = pipe(
